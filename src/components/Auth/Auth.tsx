@@ -1,24 +1,26 @@
-import { useContext, useState } from "react";
+import { MouseEventHandler, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../contexts/AuthContext";
+import { AuthContext, ILoginPayload } from "../../contexts/AuthContext";
 
 
 function Auth() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const context = useContext(AuthContext); 
-    const submitHandler = (e: any) => {
-        e.preventDefault()
-        context.onLogin('123','123')
-        
-        
-    }
     const navigate = useNavigate();
     const navigateToDashBoard = () => {
         navigate('/dashboard')
     }
     const navigateToRegister = () => {
         navigate('/register')
+    }
+    const [mail, setMail] = useState('');
+    const [password, setPassword] = useState('');
+    const context = useContext(AuthContext); 
+    let mailFromLS = localStorage.getItem('userList')
+    
+    const submitHandler = (e: any) => {
+        // if(mail === mail)
+        console.log(mailFromLS);
+        context.onLogin(e,navigateToDashBoard)
+        
     }
     return (
         <div className="containerr">
@@ -33,10 +35,10 @@ function Auth() {
                             <div className="user-name-label"><h6>Enter UserName:</h6></div>
                             <div className="user-name-input">
                                 <input 
-                                    type="email"
-                                    value={email}
+                                    type="mail"
+                                    value={mail}
                                     onChange={(e) => {
-                                        setEmail(e.target.value)
+                                        setMail(e.target.value)
                                     }}
                                 />
                             </div>
@@ -55,7 +57,7 @@ function Auth() {
                         </div>
                     </div>
                     <div className="btn-login">
-                        <button type="submit" onSubmit={submitHandler} onClick={navigateToDashBoard}>Log in</button>
+                        <button type="button" onClick={submitHandler}>Log in</button>
                     </div>
                     <div className="btn-register">
                         <button onClick={navigateToRegister}>

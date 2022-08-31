@@ -1,10 +1,14 @@
 import { createContext, useEffect, useState } from "react";
 
-  
+export interface ILoginPayload {
+    userName: string,
+    password: string
+}
+
 export const AuthContext = createContext({
     isLoggedIn: false,
-    onLogout: () => {},
-    onLogin: (email: string,password: string) => {}
+    onLogout: (callback: () => void) => {},
+    onLogin: (value: ILoginPayload, callback: () => void) => {}
 });
 
 export const AuthProvider = ({children}: any) => {
@@ -15,16 +19,16 @@ export const AuthProvider = ({children}: any) => {
             setLoggedIn(true)
         }
     },[])
-    const logoutHandler = () => {
+    const logoutHandler = (callback: () => void) => {
         localStorage.removeItem('isLogged');
         setLoggedIn(false)
-        alert('aaaa')
+        callback()
     }
     
-    const loginHandler = () => {
+    const loginHandler = (value: any, callback: () => void) => {
         localStorage.setItem('isLogged', '1');
         setLoggedIn(true)
-        alert('save')
+        callback()
     }
        return (
         <AuthContext.Provider 
@@ -38,5 +42,3 @@ export const AuthProvider = ({children}: any) => {
         </AuthContext.Provider>
        )
 }
-
-// export { AuthContext }
