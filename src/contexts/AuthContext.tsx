@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 
 export interface ILoginPayload {
-    userName: string,
+    mail: string,
     password: string
 }
 

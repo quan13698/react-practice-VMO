@@ -1,6 +1,11 @@
+import { ErrorMessage, Field, Form, Formik, setIn } from "formik";
 import { MouseEventHandler, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext, ILoginPayload } from "../../contexts/AuthContext";
+import * as Yup from "yup";
+import { render } from "@testing-library/react";
+// import { IloginPayload } from "../../contexts/UserContext";
+
 
 
 function Auth() {
@@ -11,60 +16,87 @@ function Auth() {
     const navigateToRegister = () => {
         navigate('/register')
     }
-    const [mail, setMail] = useState('');
-    const [password, setPassword] = useState('');
-    const context = useContext(AuthContext); 
+    const [info, setInfo] = useState({
+        mail: '',
+        password: ''
+    });
+    const { mail, password } = info;
+    const [data, setData] = useState([])
+
+    const context = useContext(AuthContext);
     let mailFromLS = localStorage.getItem('userList')
-    
-    const submitHandler = (e: any) => {
-        // if(mail === mail)
-        console.log(mailFromLS);
-        context.onLogin(e,navigateToDashBoard)
+
+
+
+    const initialLoginForm = {
+        mail: '',
+        password: ''
+    }
+    const loginSchema = Yup.object().shape({
+        mail: Yup.string()
+            .email('invalid')
+            .required('mail is required'),
+        password: Yup.string()
+            .required('password is required')
+    })
+    const submitLoginHandler = () => {
+
+    }
+
+
+
+    const getData = (e: any) => {
+        const { value, name } = e.target;
+        console.log(name);
+
+        setInfo(() => {
+            return {
+                ...info,
+                [name]: value
+            }
+        })
         
+    }
+    const submitHandler = (e: ILoginPayload) => {
+        const getUserList = localStorage.getItem('userList');
+        const userData = JSON.parse(getUserList as any);
+        userData.filter((e: any) => {
+            if(e.mail === mail && e.password === password) {
+                context.onLogin(e, navigateToDashBoard)
+            }
+            console.log("wrong mail or password");
+        })
+
     }
     return (
         <div className="containerr">
             <div className="auth-form-container">
-                <div className="auth-title">
-                    <h1>WELCOME TO BAELDUNG</h1>
-                </div>
-                <div className="auth-form">
-                    <div className="sub-title">Log in</div>
-                    <div className="form-input">
-                        <div className="user-name-input-div">
-                            <div className="user-name-label"><h6>Enter UserName:</h6></div>
-                            <div className="user-name-input">
-                                <input 
-                                    type="mail"
-                                    value={mail}
-                                    onChange={(e) => {
-                                        setMail(e.target.value)
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        <div className="password-input">
-                        <div className="password-label"><h6>Enter Password:</h6></div>
-                            <div className="password-input">
-                                <input 
-                                    type="password" 
-                                    value={password}
-                                    onChange={(e) => {
-                                        setPassword(e.target.value)
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="btn-login">
-                        <button type="button" onClick={submitHandler}>Log in</button>
-                    </div>
-                    <div className="btn-register">
-                        <button onClick={navigateToRegister}>
-                            Register?
-                        </button>
-                    </div>
-                </div>
+                <Formik
+                    initialValues={initialLoginForm}
+                    validationSchema={loginSchema}
+                    onSubmit={submitHandler}
+                >
+                    
+                    {({ isSubmitting }) => {
+            return (
+              <Form>
+                <label onChange={getData}>
+                  Email: <Field type="mail" name="mail" />
+                  <ErrorMessage name="mail" component="div" />
+                </label>
+                <label onChange={getData}>
+                  Password:
+                  <Field type="password" name="password" />
+                  <ErrorMessage name="password" component="div" />
+                </label>
+                <button type="submit" disabled={isSubmitting}>
+                  Submit
+                </button>
+              </Form>
+            );
+          }}
+
+                </Formik>
             </div>
         </div>
     );

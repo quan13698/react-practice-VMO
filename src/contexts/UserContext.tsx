@@ -10,10 +10,15 @@ export interface IRegisterPayload {
     password: string
 }
 
+export interface IloginPayload {
+    mail: string,
+    password: string
+}
+
 export const UserContext = createContext({
     storageUser: false,
-    onSignedUp: (value: IRegisterPayload, callback: ()=> void) => {},
-    onLogout: () => {}
+    onSignedUp: (value: IRegisterPayload, callback: () => void) => { },
+    onLogout: () => { }
 });
 
 export const UserProvider = ({ children }: any) => {
@@ -25,15 +30,11 @@ export const UserProvider = ({ children }: any) => {
         }
     }, [])
     const signedUpHandler = (value: any, callback: () => void) => {
-        // let userList = []
-        // userList.push(JSON.parse(localStorage.getItem('userList') as any))
+        let userList;
         
-        // userList.push(value)
-        // localStorage.setItem('userList', JSON.stringify(userList))
-        let a = [];
-        a = JSON.parse(localStorage.getItem('userList')!)
-        a.push(value);
-        localStorage.setItem('userList', JSON.stringify(a))
+        userList = JSON.parse(localStorage.getItem('userList') || "[]")
+        userList.push(value)
+        localStorage.setItem('userList', JSON.stringify(userList))
         
         setSignedUp(true)
         callback()
