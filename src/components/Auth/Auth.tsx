@@ -1,12 +1,8 @@
-import { ErrorMessage, Field, Form, Formik, setIn } from "formik";
-import { MouseEventHandler, useContext, useState } from "react";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext, ILoginPayload } from "../../contexts/AuthContext";
 import * as Yup from "yup";
-import { render } from "@testing-library/react";
-// import { IloginPayload } from "../../contexts/UserContext";
-
-
 
 function Auth() {
     const navigate = useNavigate();
@@ -21,13 +17,8 @@ function Auth() {
         password: ''
     });
     const { mail, password } = info;
-    const [data, setData] = useState([])
 
     const context = useContext(AuthContext);
-    let mailFromLS = localStorage.getItem('userList')
-
-
-
     const initialLoginForm = {
         mail: '',
         password: ''
@@ -39,63 +30,66 @@ function Auth() {
         password: Yup.string()
             .required('password is required')
     })
-    const submitLoginHandler = () => {
-
-    }
-
-
 
     const getData = (e: any) => {
         const { value, name } = e.target;
-        console.log(name);
-
         setInfo(() => {
             return {
                 ...info,
                 [name]: value
             }
         })
-        
+
     }
     const submitHandler = (e: ILoginPayload) => {
         const getUserList = localStorage.getItem('userList');
         const userData = JSON.parse(getUserList as any);
-        userData.filter((e: any) => {
-            if(e.mail === mail && e.password === password) {
-                context.onLogin(e, navigateToDashBoard)
+        userData.map((e: any) => {
+            if (e.mail === mail && e.password === password) {
+                return context.onLogin(e, navigateToDashBoard)
+            } else {
+                return console.log('invalid email or password');
             }
-            console.log("wrong mail or password");
         })
-
     }
+
     return (
-        <div className="containerr">
-            <div className="auth-form-container">
+        
+        <div className="bg-blue-500 grid grid-col-1 sm:grid-cols-1 h-screen w-full">
+            <div className="flex flex-col justify-center">
                 <Formik
                     initialValues={initialLoginForm}
                     validationSchema={loginSchema}
                     onSubmit={submitHandler}
                 >
-                    
                     {({ isSubmitting }) => {
-            return (
-              <Form>
-                <label onChange={getData}>
-                  Email: <Field type="mail" name="mail" />
-                  <ErrorMessage name="mail" component="div" />
-                </label>
-                <label onChange={getData}>
-                  Password:
-                  <Field type="password" name="password" />
-                  <ErrorMessage name="password" component="div" />
-                </label>
-                <button type="submit" disabled={isSubmitting}>
-                  Submit
-                </button>
-              </Form>
-            );
-          }}
-
+                        return (
+                            <Form className="max-w-[400px] w-full mx-auto bg-white p-10">
+                                <h2 className="text-x4xl text-center py-4">Login Form</h2>
+                                <div className="flex flex-col py-2">
+                                    <label className="flex flex-col" onChange={getData}>
+                                        Enter mail: <Field className="border h-8" type="mail" name="mail" />
+                                        <ErrorMessage className="text-red-500" name="mail" component="div" />
+                                    </label>
+                                </div>
+                                <div className="flex flex-col py-2">
+                                    <label className="flex flex-col" onChange={getData}>
+                                        Enter password:
+                                        <Field className="border h-8" type="password" name="password" />
+                                        <ErrorMessage className="text-red-500" name="password" component="div" />
+                                    </label>
+                                </div>
+                                <div className="text-center py-3">
+                                    <button className="border bg-blue-400 py-2 w-40" type="submit" >
+                                        Submit
+                                    </button>
+                                </div>
+                                <div className="text-center">
+                                    <button className="font-extralight" onClick={navigateToRegister}>Register?</button>
+                                </div>
+                            </Form>
+                        );
+                    }}
                 </Formik>
             </div>
         </div>
