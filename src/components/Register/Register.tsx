@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Dropdown from "react-dropdown";
@@ -7,10 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { IRegisterPayload, UserContext } from "../../contexts/UserContext";
 
 export function Register() {
-  const DropdownTest = (props: any) => {
-    return (
-      <Dropdown options={sexOption} value={sexOption[0]} {...props} />
-    )
+  const [select, setSelect] = useState("");
+  const handleChange = (e: any) => {
+    setSelect(e.target.value)
   }
 
   const regexString = new RegExp(/^([a-zA-Z\s])+$/)
@@ -113,20 +112,25 @@ export function Register() {
               </div>
 
               <div className="mx-auto w-80">
-                <label htmlFor="lastName" className="mt-3">
+                <label htmlFor="sex" className="mt-3 flex">
                   Sex
                 </label>
-                <Field
-
-                  type="select"
+                <Field as="select"
+                  // type="drop-down"
                   name="sex"
-                  className={`mt-2 
+                  // value={select}
+                  // onChange={handleChange}
+                  className={`mt-2 border flex w-full px-2 h-9
           ${touched.sex && errors.sex
                       ? "is-invalid"
                       : ""
                     }`}
-                  component={DropdownTest}
-                />
+                // component={DropdownTest}
+                >
+                  <option value=""></option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </Field>
                 <ErrorMessage
                   component="div"
                   name="sex"
@@ -217,7 +221,7 @@ export function Register() {
 
               <button
                 type="submit"
-                className="mx-auto bg-blue-500 w-80 border my-4 py-2"
+                className="mx-auto text-white bg-blue-500 w-80 border my-4 py-2"
               >
                 Sign up!
               </button>

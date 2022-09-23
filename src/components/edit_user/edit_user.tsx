@@ -1,17 +1,10 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import * as Yup from "yup";
-import Dropdown from "react-dropdown";
-import 'react-dropdown/style.css';
 import { IRegisterPayload, UserContext } from '../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { ErrorMessage, Field, Form, Formik, useFormik } from 'formik';
 
 function EditUser() {
-    const DropdownTest = (props: any) => {
-        return (
-            <Dropdown options={sexOption} value={sexOption[0]} {...props} />
-        )
-    }
 
     const regexString = new RegExp(/^([a-zA-Z\s])+$/)
     const PHONE_REGEX = new RegExp(/^\(?([0-9]{3})\)?([\s.-]?)([0-9]{3})\2([0-9]{4})$/)
@@ -32,19 +25,6 @@ function EditUser() {
             .min(6, 'password required 6 characters')
     });
 
-    const initial = {
-        firstName: '',
-        lastName: '',
-        sex: '',
-        birthday: '',
-        phone: '',
-        mail: '',
-        password: ''
-    }
-    const sexOption = [
-        { value: 'Male', label: 'Male' },
-        { value: 'Female', label: 'Female' }
-    ]
     const context = useContext(UserContext)
     const navigate = useNavigate();
 
@@ -57,7 +37,7 @@ function EditUser() {
         const checkWhoClicked = JSON.parse(localStorage.getItem('isEditing') as any);
         const userData = JSON.parse(localStorage.getItem('userList') as any);
         let a: any;
-        userData.map((e: any) => {
+        userData.forEach((e: any) => {
             if (checkWhoClicked === e.mail) {
                 a = e
             }
@@ -83,12 +63,29 @@ function EditUser() {
         }
     }
 
+    const formik = useFormik({
+        initialValues: {
+            firstName: `${getValue('firstName')}`,
+            lastName: `${getValue('lastName')}`,
+            sex: `${getValue('sex')}`,
+            birthday: `${getValue('birthday')}`,
+            phone: `${getValue('phone')}`,
+            mail: `${getValue('mail')}`,
+            password: `${getValue('password')}`
+        },
+        onSubmit: values => {
+            context.onEditUser(values, () => {
+                navigate('/dashboard')
+            })
+        }
+    })
+
     return (
         <div className="container">
             <div className="row">
                 <div className="col-lg-12">
                     <Formik
-                        initialValues={initial}
+                        initialValues={formik.initialValues}
                         validationSchema={RegisterSchema}
                         onSubmit={submitUpdateUserHandler}
                     >
@@ -99,15 +96,14 @@ function EditUser() {
                                         <h1 className="mt-5">Edit user information</h1>
                                     </div>
                                 </div>
-                                <Form>
+                                <Form onSubmit={formik.handleSubmit}>
                                     <div className="form-group">
                                         <label htmlFor="firstName">First Name</label>
                                         <Field
                                             type="firstName"
                                             name="firstName"
-                                            placeholder={`${getValue('firstName')}`}
-
-                                            // autocomplete="off"
+                                            onChange={formik.handleChange}
+                                            value={formik.values.firstName}
                                             className={`mt-2 form-control
               ${touched.firstName && errors.firstName ? "is-invalid" : ""}`}
                                         />
@@ -126,7 +122,8 @@ function EditUser() {
                                         <Field
                                             type="lastName"
                                             name="lastName"
-                                            placeholder={`${getValue('lastName')}`}
+                                            onChange={formik.handleChange}
+                                            value={formik.values.lastName}
                                             className={`mt-2 form-control
               ${touched.lastName && errors.lastName
                                                     ? "is-invalid"
@@ -144,18 +141,19 @@ function EditUser() {
                                         <label htmlFor="lastName" className="mt-3">
                                             Sex
                                         </label>
-                                        <Field
-
-                                            type="select"
+                                        <Field as="select"
                                             name="sex"
-                                            placeholder={`${getValue('sex')}`}
-                                            className={`mt-2 
-              ${touched.sex && errors.sex
+                                            onChange={formik.handleChange}
+                                            value={formik.values.sex}
+                                            className={`mt-2 border flex w-full px-2 h-9
+                ${touched.sex && errors.sex
                                                     ? "is-invalid"
                                                     : ""
                                                 }`}
-                                            component={DropdownTest}
-                                        />
+                                        >
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </Field>
                                         <ErrorMessage
                                             component="div"
                                             name="sex"
@@ -169,7 +167,8 @@ function EditUser() {
                                         <Field
                                             type="date"
                                             name="birthday"
-                                            placeholder={`${getValue('birthday')}`}
+                                            onChange={formik.handleChange}
+                                            value={formik.values.birthday}
                                             className={`mt-2 form-control
               ${touched.birthday && errors.birthday
                                                     ? "is-invalid"
@@ -189,7 +188,8 @@ function EditUser() {
                                         <Field
                                             type="phone"
                                             name="phone"
-                                            placeholder={`${getValue('phone')}`}
+                                            onChange={formik.handleChange}
+                                            value={formik.values.phone}
                                             className={`mt-2 form-control
               ${touched.phone && errors.phone
                                                     ? "is-invalid"
@@ -210,7 +210,8 @@ function EditUser() {
                                         <Field
                                             type="mail"
                                             name="mail"
-                                            placeholder={`${getValue('mail')}`}
+                                            onChange={formik.handleChange}
+                                            value={formik.values.mail}
                                             className={`mt-2 form-control
               ${touched.mail && errors.mail
                                                     ? "is-invalid"
@@ -230,7 +231,8 @@ function EditUser() {
                                         <Field
                                             type="password"
                                             name="password"
-                                            placeholder={`${getValue('password')}`}
+                                            onChange={formik.handleChange}
+                                            value={formik.values.password}
                                             className={`mt-2 form-control
               ${touched.password && errors.password
                                                     ? "is-invalid"
